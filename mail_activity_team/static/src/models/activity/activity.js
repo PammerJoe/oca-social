@@ -7,22 +7,23 @@ import {
 } from'@mail/model/model_core';
 import { attr, many2one } from '@mail/model/model_field';
 
-/*registerClassPatchModel('mail.activity', 'calendar/static/src/models/activity/activity.js', {
-    /**
-     * @override
-     */
-    /*convertData(data) {
-        const res = this._super(data);
-        if ('calendar_event_id' in data) {
-            res.calendar_event_id = data.calendar_event_id[0];
-        }
-        return res;
-    },
-});*/
-
-registerFieldPatchModel('mail.activity' {
+registerFieldPatchModel('mail.activity', 'mail_activity_team/static/src/models/activity.js', {
     /**
      * Employee related to this user.
      */
-    team_id: many2one('mail.team'),
+    team_name: attr(),
 });
+
+registerClassPatchModel('mail.activity', 'mail_activity_team/static/src/models/activity.js', {
+    /**
+     * @override
+     */
+    convertData(data) {
+        const res = this._super(data);
+        if ('team_name' in data) {
+            res.team_name = data.team_name;
+        }
+        return res;
+    },
+});
+

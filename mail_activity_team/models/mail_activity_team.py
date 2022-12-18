@@ -67,7 +67,3 @@ class MailActivityTeam(models.Model):
             missing_activities = activity_model.search(domain)
             for missing_activity in missing_activities:
                 missing_activity.write({"team_id": team.id})
-
-    def activity_format(self):
-        teams = self.read()
-        return teams
