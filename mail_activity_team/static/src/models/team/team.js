@@ -125,10 +125,10 @@ function factory(dependencies) {
             default: 'mail.activity.team',
         }),
     };
-    User.identifyingFields = ['id'];
-    User.modelName = 'mail.team';
+    Team.identifyingFields = ['id'];
+    Team.modelName = 'mail.team';
 
-    return User;
+    return Team;
 }
 
 registerNewModel('mail.team', factory);
