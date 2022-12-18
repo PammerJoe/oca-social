@@ -85,6 +85,7 @@ class MailActivity(models.Model):
     def activity_format(self):
         objects = super().activity_format()
         for obj in objects:
-            if self.team_id:
-                obj['team_name'] = self.team_id.name
+            if obj['team_id']:
+                record = self.env['mail.activity.team'].sudo().search([('id', '=', obj['team_id'])])
+                obj['team_name'] = record.name
         return objects
