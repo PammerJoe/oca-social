@@ -3,9 +3,14 @@
 
     <t t-inherit="mail.Activity" t-inherit-mode="extension" owl="1">
         <xpath expr="//a[hasclass('o_Activity_detailsButton')]" position="before">
-            <t t-if="activity.team_id">
+            <t t-if="activity.team_name">
                 <span class="oe_grey">
-                    Csapat: <t t-esc="activity.team_id.name"/>
+                    Csapat: <t t-esc="activity.team_name"/>
+                </span>
+            </t>
+            <t t-else="">
+                <span class="oe_grey">
+                    No assigned team.
                 </span>
             </t>
         </xpath>
