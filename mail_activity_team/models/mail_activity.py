@@ -84,5 +84,6 @@ class MailActivity(models.Model):
 
     def activity_format(self):
         objects = super().activity_format()
-        objects['team_name'] = self.team_id.name
+        for object in objects:
+            object['team_name'] = self.team_id.name
         return objects
