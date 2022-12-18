@@ -84,6 +84,7 @@ class MailActivity(models.Model):
 
     def activity_format(self):
         objects = super().activity_format()
-        for object in objects:
-            object['team_name'] = self.team_id.name or "None"
+        for obj in objects:
+            if self.team_id:
+                obj['team_name'] = self.team_id.name
         return objects
