@@ -86,6 +86,6 @@ class MailActivity(models.Model):
         objects = super().activity_format()
         for obj in objects:
             if obj['team_id']:
-                # record = self.env['mail.activity.team'].sudo().search([('id', '=', obj['team_id'])])
-                obj['team_name'] = obj['team_id'].name
+                record = self.env['mail.activity.team'].sudo().search([('id', '=', obj['team_id'].id)])
+                obj['team_name'] = record.name
         return objects
