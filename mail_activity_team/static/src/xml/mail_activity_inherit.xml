@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-inherit="mail.Activity" t-inherit-mode="extension">
+        <xpath expr="//a[hasclass('o_Activity_detailsButton')]" position="before">
+            <t t-if="activity.team_id">
+                <span class="oe_grey">
+                    Csapat: <t t-esc="activity.team_id.name"/>
+                </span>
+            </t>
+        </xpath>
+    </t>
+
+</templates>

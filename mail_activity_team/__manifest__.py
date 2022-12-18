@@ -11,7 +11,7 @@
     "author": "ForgeFlow, Sodexis, Odoo Community Association (OCA)",
     "license": "AGPL-3",
     "installable": True,
-    "depends": ["mail_activity_board"],
+    "depends": ["mail_activity_board", "mail"],
     "data": [
         "security/ir.model.access.csv",
         "security/mail_activity_team_security.xml",
@@ -25,6 +25,7 @@
         ],
         "web.assets_qweb": [
             "mail_activity_team/static/src/xml/systray.xml",
+            "mail_activity_team/static/src/xml/mail_activity_inherit.xml",
         ],
     },
 }
