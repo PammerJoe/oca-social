@@ -39,6 +39,6 @@ registerClassPatchModel('mail.activity', 'mail_activity_team/static/src/models/a
             method: 'set_assigned_team_member',
             args: [[this.id]],
         }));
-    }
+    },
 });
 
