@@ -13,7 +13,7 @@ class MailActivity(models.Model):
                                            domain=lambda self: self._get_domain_assigned_team_member())
 
     def _get_domain_assigned_team_member(self):
-        domain = [('id', 'in', self.team_id.member_ids.ids)]
+        domain = [('id', 'in', self.team_id.member_ids)]
         return domain
 
     def _get_default_team_id(self, user_id=None):
