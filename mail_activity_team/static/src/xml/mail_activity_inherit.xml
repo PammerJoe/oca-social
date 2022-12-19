@@ -17,13 +17,13 @@
                     <t t-esc="assignedUserText"/>
                 </div>
             </t>
-            <t t-if="activity.team_name">
-                <t t-if="not activity.assigned_team_member">
-                    <button class="o_Activity_toolButton o_Activity_editButton btn btn-link" t-on-click="_onClickTake">
-                        <i class="fa fa-pencil"/> Elvállal
-                    </button>
-                </t>
-            </t>
+<!--            <t t-if="activity.team_name">-->
+<!--                <t t-if="not activity.assigned_team_member">-->
+<!--                    <button class="o_Activity_toolButton o_Activity_editButton btn btn-link" t-on-click="_onClickTake">-->
+<!--                        <i class="fa fa-pencil"/> Elvállal-->
+<!--                    </button>-->
+<!--                </t>-->
+<!--            </t>-->
         </xpath>
     </t>
 
