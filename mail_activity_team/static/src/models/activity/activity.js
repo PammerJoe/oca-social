@@ -12,6 +12,7 @@ registerFieldPatchModel('mail.activity', 'mail_activity_team/static/src/models/a
      * Employee related to this user.
      */
     team_name: attr(),
+    assigned_team_member: attr(),
 });
 
 registerClassPatchModel('mail.activity', 'mail_activity_team/static/src/models/activity.js', {
