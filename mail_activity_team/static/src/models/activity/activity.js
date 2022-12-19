@@ -23,6 +23,9 @@ registerClassPatchModel('mail.activity', 'mail_activity_team/static/src/models/a
         if ('team_name' in data) {
             res.team_name = data.team_name;
         }
+        if ('assigned_team_member' in data) {
+            res.assigned_team_member = data.assigned_team_member
+        }
         return res;
     },
 
