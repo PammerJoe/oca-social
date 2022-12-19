@@ -33,7 +33,7 @@ registerClassPatchModel('mail.activity', 'mail_activity_team/static/src/models/a
     /*
     * Set assigned team member to current user.
     */
-    async takeActivity() {
+    async _takeActivity() {
         await this.async(() => this.env.services.rpc({
             model: 'mail.activity',
             method: 'set_assigned_team_member',
