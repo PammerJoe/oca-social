@@ -2,9 +2,27 @@
 <templates id="template" xml:space="preserve">
 
     <t t-inherit="mail.Activity" t-inherit-mode="extension" owl="1">
-        <xpath expr="//a[hasclass('o_Activity_detailsButton')]" position="before">
+        <xpath expr="//div[hasclass('o_Activity_userName')]" position="replace">
             <t t-if="activity.team_name">
-                <span class="oe_grey"> (<t t-esc="activity.team_name"/>)</span>
+                <t t-if="activity.assigned_team_member">
+                    <span style="white-space: pre-wrap;"> felelős: <t t-esc="activity.assigned_team_member"/></span>
+                </t>
+                <t t-else="">
+                    <span style="white-space: pre-wrap; color: red; text-weight: bold;"> Nincs felelős!</span>
+                </t>
+                <span style="white-space: pre-wrap; text-weight: bold;"> (<t t-esc="activity.team_name"/>)</span>
+            </t>
+            <t t-else="">
+                <div class="o_Activity_userName">
+                    <t t-esc="assignedUserText"/>
+                </div>
+            </t>
+            <t t-if="activity.team_name">
+                <t t-if="not activity.assigned_team_member">
+                    <button class="o_Activity_toolButton o_Activity_editButton btn btn-link" t-on-click="_onClickTake">
+                        <i class="fa fa-pencil"/> Elvállal
+                    </button>
+                </t>
             </t>
         </xpath>
     </t>

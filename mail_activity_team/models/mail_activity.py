@@ -7,6 +7,13 @@ from odoo.exceptions import ValidationError
 class MailActivity(models.Model):
     _inherit = "mail.activity"
 
+    assigned_team_member = fields.Boolean(string="Felelős csapattag", comodel_name="res.users",
+                                          domain=lambda self: self._get_domain_assigned_team_member())
+
+    def _get_domain_assigned_team_member(self):
+        domain = [('id', 'in', self.team_member_ids)]
+        return domain
+
     def _get_default_team_id(self, user_id=None):
         if not user_id:
             user_id = self.env.uid
@@ -22,6 +29,7 @@ class MailActivity(models.Model):
     team_id = fields.Many2one(
         comodel_name="mail.activity.team", default=lambda s: s._get_default_team_id()
     )
+    team_member_ids = fields.Many2many(related=team_id.member_ids, string="Team Members",)
 
     @api.onchange("user_id")
     def _onchange_user_id(self):
@@ -88,4 +96,10 @@ class MailActivity(models.Model):
             if obj['team_id']:
                 # record = self.env['mail.activity.team'].sudo().search([('id', '=', obj['team_id'].id)])
                 obj['team_name'] = obj['team_id'][1]
+                obj['assigned_team_member'] = obj['assigned_team_member'][1]
         return objects
+
+    def set_assigned_team_member(self):
+        for activity in self:
+            activity.assigned_team_member = self.env.user
+        return
