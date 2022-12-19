@@ -29,7 +29,9 @@ registerClassPatchModel('mail.activity', 'mail_activity_team/static/src/models/a
         }
         return res;
     },
+});
 
+registerInstancePatchModel('mail.activity', 'mail_activity_team/static/src/models/activity.js', {
     /*
     * Set assigned team member to current user.
     */
