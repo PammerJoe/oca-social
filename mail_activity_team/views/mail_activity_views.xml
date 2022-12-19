@@ -33,6 +33,7 @@
         <field name="arch" type="xml">
             <field name="user_id" position="after">
                 <field name="team_id" />
+                <field name="assigned_team_member"/>
             </field>
         </field>
     </record>
