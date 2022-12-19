@@ -9,7 +9,12 @@ _logger = logging.getLogger(__name__)
 class MailActivity(models.Model):
     _inherit = "mail.activity"
 
+    assigned_team_member = fields.Many2one(string="Felelős csapattag", comodel_name="res.users",
+                                           domain=lambda self: self._get_domain_assigned_team_member())
 
+    def _get_domain_assigned_team_member(self):
+        domain = [('id', 'in', self.team_id.member_ids)]
+        return domain
 
     def _get_default_team_id(self, user_id=None):
         if not user_id:
@@ -26,13 +31,6 @@ class MailActivity(models.Model):
     team_id = fields.Many2one(
         comodel_name="mail.activity.team", default=lambda s: s._get_default_team_id()
     )
-    team_member_ids = fields.Many2many(related='team_id.member_ids', string="Team Members",)
-    assigned_team_member = fields.Many2one(string="Felelős csapattag", comodel_name="res.users",
-                                           domain=lambda self: self._get_domain_assigned_team_member())
-
-    def _get_domain_assigned_team_member(self):
-        domain = [('id', 'in', self.team_member_ids.ids)]
-        return domain
 
     @api.onchange("user_id")
     def _onchange_user_id(self):
