@@ -95,6 +95,8 @@ class MailActivity(models.Model):
                 obj['team_name'] = obj['team_id'][1]
                 if obj['assigned_team_member']:
                     obj['assigned_team_member'] = obj['assigned_team_member'][1]
+            else:
+                obj['team_name'] = False
         return objects
 
     def set_assigned_team_member(self):
