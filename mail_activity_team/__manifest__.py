@@ -23,6 +23,7 @@
         "web.assets_backend": [
             "mail_activity_team/static/src/js/systray.esm.js",
             'mail_activity_team/static/src/models/*/*.js',
+            'mail_activity_team/static/src/components/*/*.js',
         ],
         "web.assets_qweb": [
             "mail_activity_team/static/src/xml/systray.xml",
