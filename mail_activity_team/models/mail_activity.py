@@ -2,7 +2,9 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import ValidationError
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class MailActivity(models.Model):
     _inherit = "mail.activity"
@@ -96,8 +98,7 @@ class MailActivity(models.Model):
             if obj['team_id']:
                 # record = self.env['mail.activity.team'].sudo().search([('id', '=', obj['team_id'].id)])
                 obj['team_name'] = obj['team_id'][1]
-                if obj['assigned_team_member'] is not False:
-                    obj['assigned_team_member'] = obj['assigned_team_member'][1]
+                _logger.warning(obj['assigned_team_member'])
         return objects
 
     def set_assigned_team_member(self):
