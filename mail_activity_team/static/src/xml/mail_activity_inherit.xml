@@ -19,11 +19,11 @@
             </t>
             <t t-if="activity.team_name">
                 <t t-if="!activity.assigned_team_member">
-                    <t t-if="uid in activity.team_member_ids"/>
-                        <button class="o_Activity_toolButton o_Activity_editButton btn btn-link" t-on-click="_onClickTake">
-                            <i class="fa fa-pencil"/> Elvállal
-                        </button>
-                    </t>
+<!--                    <t t-if="uid in activity.team_member_ids"/>-->
+<!--                        <button class="o_Activity_toolButton o_Activity_editButton btn btn-link" t-on-click="_onClickTake">-->
+<!--                            <i class="fa fa-pencil"/> Elvállal-->
+<!--                        </button>-->
+<!--                    </t>-->
                 </t>
             </t>
         </xpath>
