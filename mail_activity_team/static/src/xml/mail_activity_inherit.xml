@@ -3,7 +3,7 @@
 
     <t t-inherit="mail.Activity" t-inherit-mode="extension" owl="1">
         <xpath expr="//div[hasclass('o_Activity_userName')]" position="replace">
-            <t t-if="activity.team_name">
+            <t t-if="activity.team_name != False &amp;&amp; activity.team_name != ''">
                 <t t-if="activity.assigned_team_member">
                     <span style="white-space: pre-wrap;"> felelős: <t t-esc="activity.assigned_team_member"/></span>
                 </t>
