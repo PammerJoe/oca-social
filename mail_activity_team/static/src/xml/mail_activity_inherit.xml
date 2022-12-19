@@ -17,7 +17,7 @@
                     <t t-esc="assignedUserText"/>
                 </div>
             </t>
-            <t t-if="activity.team_name">
+            <t t-if="activity.team_name != False &amp;&amp; activity.team_name != ''">
                 <t t-if="!activity.assigned_team_member">
                     <t t-if="activity.team_member_ids.includes(env.session.uid)">
                         <button class="o_Activity_toolButton o_Activity_editButton btn btn-link" t-on-click="_onClickTake">
