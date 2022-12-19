@@ -7,7 +7,7 @@ from odoo.exceptions import ValidationError
 class MailActivity(models.Model):
     _inherit = "mail.activity"
 
-    assigned_team_member = fields.Boolean(string="Felelős csapattag", comodel_name="res.users",
+    assigned_team_member = fields.Many2one(string="Felelős csapattag", comodel_name="res.users",
                                           domain=lambda self: self._get_domain_assigned_team_member())
 
     def _get_domain_assigned_team_member(self):
@@ -96,6 +96,7 @@ class MailActivity(models.Model):
             if obj['team_id']:
                 # record = self.env['mail.activity.team'].sudo().search([('id', '=', obj['team_id'].id)])
                 obj['team_name'] = obj['team_id'][1]
+                obj['assigned_team_member'] = obj['assigned_team_member'][1]
         return objects
 
     def set_assigned_team_member(self):
