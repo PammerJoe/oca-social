@@ -98,7 +98,8 @@ class MailActivity(models.Model):
             if obj['team_id']:
                 # record = self.env['mail.activity.team'].sudo().search([('id', '=', obj['team_id'].id)])
                 obj['team_name'] = obj['team_id'][1]
-                _logger.warning(obj['assigned_team_member'])
+                if obj['assigned_team_member']:
+                    obj['assigned_team_member'] = obj['assigned_team_member'][1]
         return objects
 
     def set_assigned_team_member(self):
