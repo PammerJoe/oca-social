@@ -29,7 +29,7 @@ class MailActivity(models.Model):
     team_id = fields.Many2one(
         comodel_name="mail.activity.team", default=lambda s: s._get_default_team_id()
     )
-    team_member_ids = fields.Many2many(related=team_id.member_ids, string="Team Members",)
+    team_member_ids = fields.Many2many(related='team_id.member_ids', string="Team Members",)
 
     @api.onchange("user_id")
     def _onchange_user_id(self):
