@@ -14,7 +14,7 @@ class MailActivity(models.Model):
 
     def _get_domain_assigned_team_member(self):
         team = self.env['mail.activity.team'].search([('id', '=', self.team_id.id)])
-        domain = [('id', 'in', team.member_ids.ids)]
+        domain = [('activity_team_ids', 'in', team.id)]
         return domain
 
     def _get_default_team_id(self, user_id=None):
