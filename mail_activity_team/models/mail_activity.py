@@ -58,6 +58,9 @@ class MailActivity(models.Model):
                 self.user_id = self.team_id.member_ids
             else:
                 self.user_id = self.env["res.users"]
+        if self.assigned_team_member not in self.team_id.member_ids:
+            if self.team_id.user_id:
+                self.assigned_team_member = False
         return res
 
     @api.constrains("team_id", "user_id")
