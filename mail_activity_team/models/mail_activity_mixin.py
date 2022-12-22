@@ -26,7 +26,7 @@ class MailActivityMixin(models.AbstractModel):
         activity_ids = self.env["mail.activity"]._search(
             [
                 "|",
-                ("user_id", "=", self.env.user.id),
+                ("assigned_team_member", "=", self.env.user.id),
                 "&",
                 ("date_deadline", operator, operand),
                 ("res_model", "=", self._name),
@@ -46,8 +46,19 @@ class MailActivityMixin(models.AbstractModel):
         user-team missmatch. We can hook onto `act_values` dict as it's passed
         to the create activity method.
         """
-        user_id = act_values.get("user_id")
+        user_id = act_values.get("assigned_team_member")
+        team_id = act_values.get("team_id")
         if user_id:
+            if team_id:
+                team_rec = self.env['mail.activity.team'].search([('id','=', team_id)], limit=1)
+                if user_id in team_rec.member_ids:
+                    return super().activity_schedule(
+                        act_type_xmlid=act_type_xmlid,
+                        date_deadline=date_deadline,
+                        summary=summary,
+                        note=note,
+                        **act_values
+                    )
             team = (
                 self.env["mail.activity"]
                 .with_context(

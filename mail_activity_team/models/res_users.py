@@ -24,21 +24,21 @@ class ResUsers(models.Model):
                         act.date_deadline::date > 0 Then 'overdue'
                         WHEN %(today)s::date -
                         act.date_deadline::date < 0 Then 'planned'
-                    END AS states, act.user_id as user_id
+                    END AS states, act.assigned_team_member as member_id
                     FROM mail_activity AS act
                     JOIN ir_model AS m ON act.res_model_id = m.id
                     WHERE team_id in (
                         SELECT mail_activity_team_id
                         FROM mail_activity_team_users_rel
-                        WHERE res_users_id = %(user_id)s
+                        WHERE res_users_id = %(member_id)s
                     )
-                    GROUP BY m.id, states, act.res_model, act.user_id;"""
+                    GROUP BY m.id, states, act.res_model, act.assigned_team_member;"""
         user = self.env.uid
         self.env.cr.execute(
             query,
             {
                 "today": fields.Date.context_today(self),
-                "user_id": user,
+                "member_id": user,
             },
         )
         activity_data = self.env.cr.dictfetchall()

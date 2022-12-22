@@ -29,21 +29,21 @@ class MailActivity(models.Model):
     )
     team_member_ids = fields.Many2many(related='team_id.member_ids')
 
-    @api.onchange("user_id")
-    def _onchange_user_id(self):
+    @api.onchange("assigned_team_member")
+    def _onchange_assigned_team_member(self):
         res = {"domain": {"team_id": []}}
-        if not self.user_id:
+        if not self.assigned_team_member:
             return res
         res["domain"]["team_id"] = [
             "|",
             ("res_model_ids", "=", False),
             ("res_model_ids", "in", self.res_model_id.ids),
         ]
-        if self.team_id and self.user_id in self.team_id.member_ids:
+        if self.team_id and self.assigned_team_member in self.team_id.member_ids:
             return res
         self.team_id = self.with_context(
             default_res_model=self.res_model_id.id
-        )._get_default_team_id(user_id=self.user_id.id)
+        )._get_default_team_id(user_id=self.assigned_team_member.id)
         return res
 
     @api.onchange("team_id")
@@ -52,19 +52,16 @@ class MailActivity(models.Model):
         if not self.team_id:
             return res
         res["domain"]["user_id"] = [("id", "in", self.team_id.member_ids.ids)]
-        if self.user_id not in self.team_id.member_ids:
-            if self.team_id.user_id:
-                self.user_id = self.team_id.user_id
-            elif len(self.team_id.member_ids) == 1:
-                self.user_id = self.team_id.member_ids
-            else:
-                self.user_id = self.env["res.users"]
         if self.assigned_team_member not in self.team_id.member_ids:
             if self.team_id.user_id:
-                self.assigned_team_member = False
+                self.assigned_team_member = self.team_id.user_id
+            elif len(self.team_id.member_ids) == 1:
+                self.assigned_team_member = self.team_id.member_ids
+            else:
+                self.assigned_team_member = self.env["res.users"]
         return res
 
-    @api.constrains("team_id", "user_id")
+    @api.constrains("team_id", "assigned_team_member")
     def _check_team_and_user(self):
         for activity in self:
             # SUPERUSER is used to put mail.activity on some objects
@@ -76,17 +73,17 @@ class MailActivity(models.Model):
             # We must consider also users that could be archived but come from
             # an automatic scheduled activity
             if (
-                activity.user_id.id != SUPERUSER_ID
+                activity.assigned_team_member.id != SUPERUSER_ID
                 and activity.team_id
-                and activity.user_id
-                and activity.user_id
+                and activity.assigned_team_member
+                and activity.assigned_team_member
                 not in activity.team_id.with_context(active_test=False).member_ids
             ):
                 raise ValidationError(
                     _(
                         "The assigned user %(user_name)s is "
                         "not member of the team %(team_name)s.",
-                        user_name=activity.user_id.name,
+                        user_name=activity.assigned_team_member.name,
                         team_name=activity.team_id.name,
                     )
                 )
