@@ -13,7 +13,8 @@ class MailActivity(models.Model):
 
     def _get_default_team_id(self, user_id=None):
         if not user_id:
-            user_id = self.env.uid
+            return False
+            # user_id = self.env.uid
         res_model = self.env.context.get("default_res_model")
         model = self.sudo().env["ir.model"].search([("model", "=", res_model)], limit=1)
         domain = [("member_ids", "in", [user_id])]
