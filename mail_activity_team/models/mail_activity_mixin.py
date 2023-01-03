@@ -51,7 +51,7 @@ class MailActivityMixin(models.AbstractModel):
         if user_id:
             if team_id:
                 team_rec = self.env['mail.activity.team'].search([('id','=', team_id)], limit=1)
-                if user_id in team_rec.member_ids:
+                if user_id in team_rec.member_ids.ids:
                     return super().activity_schedule(
                         act_type_xmlid=act_type_xmlid,
                         date_deadline=date_deadline,
