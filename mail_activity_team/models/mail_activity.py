@@ -1,6 +1,6 @@
 # Copyright 2018-22 ForgeFlow S.L.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
-from odoo import SUPERUSER_ID, _, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models, exceptions
 from odoo.exceptions import ValidationError
 import logging
 
@@ -104,3 +104,86 @@ class MailActivity(models.Model):
         for activity in self:
             activity.assigned_team_member = self.env.user
         return
+
+    # ------------------------------------------------------
+    # Notification
+    # ------------------------------------------------------
+
+    def action_notify(self):
+        if not self:
+            return
+        original_context = self.env.context
+        body_template = self.env.ref('mail.message_activity_assigned')
+        for activity in self:
+            notified_user = activity.user_id if activity.team_id is False and activity.assigned_team_member is False else activity.assigned_team_member
+            if notified_user.lang:
+                # Send the notification in the assigned user's language
+                self = self.with_context(lang=notified_user.lang)
+                body_template = body_template.with_context(lang=notified_user.lang)
+                activity = activity.with_context(lang=notified_user.lang)
+            model_description = self.env['ir.model']._get(activity.res_model).display_name
+            body = body_template._render(
+                dict(
+                    activity=activity,
+                    model_description=model_description,
+                    access_link=self.env['mail.thread']._notify_get_action_link('view', model=activity.res_model, res_id=activity.res_id),
+                ),
+                engine='ir.qweb',
+                minimal_qcontext=True
+            )
+            record = self.env[activity.res_model].browse(activity.res_id)
+            if notified_user:
+                record.message_notify(
+                    partner_ids=notified_user.partner_id.ids,
+                    body=body,
+                    subject=_('%(activity_name)s: %(summary)s assigned to you',
+                        activity_name=activity.res_name,
+                        summary=activity.summary or activity.activity_type_id.name),
+                    record_name=activity.res_name,
+                    model_description=model_description,
+                    email_layout_xmlid='mail.mail_notification_light',
+                )
+            body_template = body_template.with_context(original_context)
+            self = self.with_context(original_context)
+
+    # ------------------------------------------------------
+    # ORM overrides
+    # ------------------------------------------------------
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        activities = super(MailActivity, self).create(vals_list)
+        for activity in activities:
+            need_sudo = False
+            try:
+                partner_id = activity.assigned_team_member.partner_id.id
+            except exceptions.AccessError:
+                need_sudo = True
+                partner_id = activity.assigned_team_member.sudo().partner_id.id
+
+            # Send a notificiation to assigned team member
+
+            if activity.assigned_team_member != self.env.user:
+                if need_sudo:
+                    activity.sudo().action_notify()
+                else:
+                    activity.action_notify()
+
+            self.env[activity.res_model].browse(activity.res_id).message_subscribe(partner_ids=[partner_id])
+        return activities
+
+    def write(self, values):
+        if values.get('assigned_team_member'):
+            team_member_changes = self.filtered(lambda activity: activity.assigned_team_member.id != values.get('assigned_team_member'))
+            pre_responsibles_team_member = team_member_changes.mapped('assigned_team_member.partner_id')
+        res = super(MailActivity, self).write(values)
+
+        if values.get('assigned_team_member'):
+            if values['assigned_team_member'] != self.env.uid:
+                to_check = team_member_changes.filtered(lambda act: not act.automated)
+                to_check._check_access_assignation()
+                if not self.env.context.get('mail_activity_quick_update', False):
+                    team_member_changes.action_notify()
+            for activity in team_member_changes:
+                self.env[activity.res_model].browse(activity.res_id).message_subscribe(partner_ids=[activity.assigned_team_member.partner_id.id])
+        return res
