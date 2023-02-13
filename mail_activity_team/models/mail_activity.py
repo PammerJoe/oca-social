@@ -116,35 +116,44 @@ class MailActivity(models.Model):
         body_template = self.env.ref('mail.message_activity_assigned')
         for activity in self:
             notified_user = activity.user_id if activity.team_id is False and activity.assigned_team_member is False else activity.assigned_team_member
-            if notified_user.lang:
-                # Send the notification in the assigned user's language
-                self = self.with_context(lang=notified_user.lang)
-                body_template = body_template.with_context(lang=notified_user.lang)
-                activity = activity.with_context(lang=notified_user.lang)
-            model_description = self.env['ir.model']._get(activity.res_model).display_name
-            body = body_template._render(
-                dict(
-                    activity=activity,
-                    model_description=model_description,
-                    access_link=self.env['mail.thread']._notify_get_action_link('view', model=activity.res_model, res_id=activity.res_id),
-                ),
-                engine='ir.qweb',
-                minimal_qcontext=True
+            notified_users = activity.team_id.member_ids if activity.team_id is True and activity.assigned_team_member is False else None
+            if notified_users is not None:
+                for user in notified_users:
+                    self.send_notification(user, body_template, activity, original_context)
+            else:
+                self.send_notification(notified_user, body_template, activity, original_context)
+
+    def send_notification(self, notified_user, body_template, activity, original_context):
+        if notified_user.lang:
+            # Send the notification in the assigned user's language
+            self = self.with_context(lang=notified_user.lang)
+            body_template = body_template.with_context(lang=notified_user.lang)
+            activity = activity.with_context(lang=notified_user.lang)
+        model_description = self.env['ir.model']._get(activity.res_model).display_name
+        body = body_template._render(
+            dict(
+                activity=activity,
+                model_description=model_description,
+                access_link=self.env['mail.thread']._notify_get_action_link('view', model=activity.res_model,
+                                                                            res_id=activity.res_id),
+            ),
+            engine='ir.qweb',
+            minimal_qcontext=True
+        )
+        record = self.env[activity.res_model].browse(activity.res_id)
+        if notified_user:
+            record.message_notify(
+                partner_ids=notified_user.partner_id.ids,
+                body=body,
+                subject=_('%(activity_name)s: %(summary)s assigned to you',
+                          activity_name=activity.res_name,
+                          summary=activity.summary or activity.activity_type_id.name),
+                record_name=activity.res_name,
+                model_description=model_description,
+                email_layout_xmlid='mail.mail_notification_light',
             )
-            record = self.env[activity.res_model].browse(activity.res_id)
-            if notified_user:
-                record.message_notify(
-                    partner_ids=notified_user.partner_id.ids,
-                    body=body,
-                    subject=_('%(activity_name)s: %(summary)s assigned to you',
-                        activity_name=activity.res_name,
-                        summary=activity.summary or activity.activity_type_id.name),
-                    record_name=activity.res_name,
-                    model_description=model_description,
-                    email_layout_xmlid='mail.mail_notification_light',
-                )
-            body_template = body_template.with_context(original_context)
-            self = self.with_context(original_context)
+        body_template = body_template.with_context(original_context)
+        self = self.with_context(original_context)
 
     # ------------------------------------------------------
     # ORM overrides
