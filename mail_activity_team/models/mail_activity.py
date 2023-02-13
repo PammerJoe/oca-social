@@ -155,6 +155,26 @@ class MailActivity(models.Model):
         body_template = body_template.with_context(original_context)
         self = self.with_context(original_context)
 
+    def _action_done(self, feedback=False, attachment_ids=None):
+        """ Overridden activity done method to send reminders when activity is marked as done. """
+        original_context = self.env.context
+        body_template = self.env.ref('mail.message_activity_done_notification')
+        for activity in self:
+            if activity.team_id:
+                if activity.assigned_team_member:
+                    if activity.assigned_team_member.id != self.env.user.id:
+                        activity.send_notification(activity.assigned_team_member, body_template, activity, original_context)
+            else:
+                if activity.user_id != self.env.user.id:
+                    activity.send_notification(activity.user_id, body_template, activity, original_context)
+            record = self.env[activity.res_model].browse(activity.res_id)
+            if 'responsible_user' in record._fields:
+                if record.responsible_user:
+                    if record.responsible_user.id != self.env.user.id:
+                        self.send_notification(record.responsible_user, body_template, activity, original_context)
+        result = super(MailActivity, self)._action_done(feedback, attachment_ids)
+        return result
+
     # ------------------------------------------------------
     # ORM overrides
     # ------------------------------------------------------
