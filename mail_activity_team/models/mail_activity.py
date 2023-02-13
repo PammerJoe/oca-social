@@ -119,9 +119,11 @@ class MailActivity(models.Model):
             notified_users = activity.team_id.member_ids if activity.team_id is True and activity.assigned_team_member is False else None
             if notified_users is not None:
                 for user in notified_users:
-                    self.send_notification(user, body_template, activity, original_context)
+                    if user != self.env.user:
+                        self.send_notification(user, body_template, activity, original_context)
             else:
-                self.send_notification(notified_user, body_template, activity, original_context)
+                if notified_user != self.env.user:
+                    self.send_notification(notified_user, body_template, activity, original_context)
 
     def send_notification(self, notified_user, body_template, activity, original_context):
         if notified_user.lang:
@@ -162,15 +164,15 @@ class MailActivity(models.Model):
         for activity in self:
             if activity.team_id:
                 if activity.assigned_team_member:
-                    if activity.assigned_team_member.id != self.env.user.id:
+                    if activity.assigned_team_member != self.env.user:
                         activity.send_notification(activity.assigned_team_member, body_template, activity, original_context)
             else:
-                if activity.user_id != self.env.user.id:
+                if activity.user_id != self.env.user:
                     activity.send_notification(activity.user_id, body_template, activity, original_context)
             record = self.env[activity.res_model].browse(activity.res_id)
             if 'responsible_user' in record._fields:
                 if record.responsible_user:
-                    if record.responsible_user.id != self.env.user.id:
+                    if record.responsible_user != self.env.user:
                         self.send_notification(record.responsible_user, body_template, activity, original_context)
         result = super(MailActivity, self)._action_done(feedback, attachment_ids)
         return result
@@ -190,13 +192,12 @@ class MailActivity(models.Model):
                 need_sudo = True
                 partner_id = activity.assigned_team_member.sudo().partner_id.id
 
-            # Send a notificiation to assigned team member
-
-            if activity.assigned_team_member != self.env.user:
-                if need_sudo:
-                    activity.sudo().action_notify()
-                else:
-                    activity.action_notify()
+            # Send a notificiation to assigned team/team member/user
+            # if activity.assigned_team_member != self.env.user:
+            if need_sudo:
+                activity.sudo().action_notify()
+            else:
+                activity.action_notify()
 
             self.env[activity.res_model].browse(activity.res_id).message_subscribe(partner_ids=[partner_id])
         return activities
