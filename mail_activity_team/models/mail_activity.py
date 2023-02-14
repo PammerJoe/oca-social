@@ -162,14 +162,22 @@ class MailActivity(models.Model):
         original_context = self.env.context
         body_template = self.env.ref('mail_activity_team.message_activity_done_notification')
         for activity in self:
+            record = self.env[activity.res_model].browse(activity.res_id)
             if activity.team_id:
                 if activity.assigned_team_member:
                     if activity.assigned_team_member != self.env.user:
-                        activity.send_notification(activity.assigned_team_member, body_template, activity, original_context)
+                        if 'responsible_user' in record._fields:
+                            if activity.assigned_team_member != record.responsible_user:
+                                activity.send_notification(activity.assigned_team_member, body_template, activity, original_context)
+                        else:
+                            activity.send_notification(activity.assigned_team_member, body_template, activity, original_context)
             else:
                 if activity.user_id != self.env.user:
-                    activity.send_notification(activity.user_id, body_template, activity, original_context)
-            record = self.env[activity.res_model].browse(activity.res_id)
+                    if 'responsible_user' in record._fields:
+                        if activity.user_id != record.responsible_user:
+                            activity.send_notification(activity.user_id, body_template, activity, original_context)
+                    else:
+                        activity.send_notification(activity.user_id, body_template, activity, original_context)
             if 'responsible_user' in record._fields:
                 if record.responsible_user:
                     if record.responsible_user != self.env.user:
