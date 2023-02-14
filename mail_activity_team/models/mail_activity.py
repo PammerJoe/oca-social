@@ -113,7 +113,7 @@ class MailActivity(models.Model):
         if not self:
             return
         original_context = self.env.context
-        body_template = self.env.ref('mail_activity_team.message_activity_assigned')
+        body_template = self.env.ref('mail.message_activity_assigned')
         for activity in self:
             notified_user = activity.user_id if activity.team_id is False and activity.assigned_team_member is False else activity.assigned_team_member
             notified_users = activity.team_id.member_ids if activity.team_id is True and activity.assigned_team_member is False else None
@@ -160,7 +160,7 @@ class MailActivity(models.Model):
     def _action_done(self, feedback=False, attachment_ids=None):
         """ Overridden activity done method to send reminders when activity is marked as done. """
         original_context = self.env.context
-        body_template = self.env.ref('mail.message_activity_done_notification')
+        body_template = self.env.ref('mail_activity_team.message_activity_done_notification')
         for activity in self:
             if activity.team_id:
                 if activity.assigned_team_member:
